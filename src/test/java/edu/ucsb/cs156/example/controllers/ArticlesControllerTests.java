@@ -308,6 +308,8 @@ public class ArticlesControllerTests extends ControllerTestCase {
     assertEquals("Articles with id 67 not found", json.get("message"));
   }
 
+  @WithMockUser(roles = {"ADMIN", "USER"})
+  @Test
   public void admin_can_delete_an_article() throws Exception {
     // arrange
 
