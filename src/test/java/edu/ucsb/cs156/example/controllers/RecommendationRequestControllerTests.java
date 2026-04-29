@@ -136,6 +136,55 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
     assertEquals("RecommendationRequest with id 7 not found", json.get("message"));
   }
 
+  @WithMockUser(roles = {"ADMIN", "USER"})
+  @Test
+  public void admin_can_delete_a_recommendation_request() throws Exception {
+    LocalDateTime dateRequested = LocalDateTime.parse("2022-01-03T00:00:00");
+    LocalDateTime dateNeeded = LocalDateTime.parse("2022-02-03T00:00:00");
+
+    RecommendationRequest request =
+        RecommendationRequest.builder()
+            .requesterEmail("student@ucsb.edu")
+            .professorEmail("professor@ucsb.edu")
+            .explanation("Need a letter")
+            .dateRequested(dateRequested)
+            .dateNeeded(dateNeeded)
+            .done(true)
+            .build();
+
+    when(recommendationRequestRepository.findById(15L)).thenReturn(Optional.of(request));
+
+    MvcResult response =
+        mockMvc
+            .perform(delete("/api/recommendationrequest").param("id", "15").with(csrf()))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    verify(recommendationRequestRepository, times(1)).findById(15L);
+    verify(recommendationRequestRepository, times(1)).delete(request);
+
+    Map<String, Object> json = responseToJson(response);
+    assertEquals("RecommendationRequest with id 15 deleted", json.get("message"));
+  }
+
+  @WithMockUser(roles = {"ADMIN", "USER"})
+  @Test
+  public void admin_tries_to_delete_nonexistent_recommendation_request_and_gets_error()
+      throws Exception {
+    when(recommendationRequestRepository.findById(15L)).thenReturn(Optional.empty());
+
+    MvcResult response =
+        mockMvc
+            .perform(delete("/api/recommendationrequest").param("id", "15").with(csrf()))
+            .andExpect(status().isNotFound())
+            .andReturn();
+
+    verify(recommendationRequestRepository, times(1)).findById(15L);
+
+    Map<String, Object> json = responseToJson(response);
+    assertEquals("RecommendationRequest with id 15 not found", json.get("message"));
+  }
+
   @Test
   public void logged_out_users_cannot_post() throws Exception {
     mockMvc
