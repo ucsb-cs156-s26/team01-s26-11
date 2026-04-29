@@ -1,6 +1,7 @@
 package edu.ucsb.cs156.example.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -311,7 +312,7 @@ public class HelpRequestControllerTests extends ControllerTestCase {
     // act
     MvcResult response =
         mockMvc
-            .perform(delete("/api/helprequest?id=15").with(csrf()))
+            .perform(delete("/api/helprequest").param("id", "15").with(csrf()))
             .andExpect(status().isOk())
             .andReturn();
 
