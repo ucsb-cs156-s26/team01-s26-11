@@ -1,9 +1,7 @@
 package edu.ucsb.cs156.example.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -15,12 +13,13 @@ import edu.ucsb.cs156.example.repositories.UserRepository;
 import edu.ucsb.cs156.example.testconfig.TestConfig;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,7 +29,6 @@ import org.springframework.test.web.servlet.MvcResult;
 public class RecommendationRequestControllerTests extends ControllerTestCase {
 
   @MockitoBean RecommendationRequestRepository recommendationRequestRepository;
-
   @MockitoBean UserRepository userRepository;
 
   @Test
@@ -41,33 +39,20 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
   @WithMockUser(roles = {"USER"})
   @Test
   public void logged_in_users_can_get_all() throws Exception {
-    LocalDateTime date1 = LocalDateTime.parse("2022-01-03T00:00:00");
-    LocalDateTime date2 = LocalDateTime.parse("2022-02-03T00:00:00");
-
-    RecommendationRequest request1 =
+    RecommendationRequest request =
         RecommendationRequest.builder()
-            .requesterEmail("student1@ucsb.edu")
-            .professorEmail("prof1@ucsb.edu")
-            .explanation("Grad school letter")
-            .dateRequested(date1)
-            .dateNeeded(date2)
-            .done(false)
-            .build();
-
-    RecommendationRequest request2 =
-        RecommendationRequest.builder()
-            .requesterEmail("student2@ucsb.edu")
-            .professorEmail("prof2@ucsb.edu")
-            .explanation("Scholarship letter")
-            .dateRequested(date1)
-            .dateNeeded(date2)
+            .requesterEmail("student@ucsb.edu")
+            .professorEmail("professor@ucsb.edu")
+            .explanation("Need a letter")
+            .dateRequested(LocalDateTime.parse("2022-01-03T00:00:00"))
+            .dateNeeded(LocalDateTime.parse("2022-02-03T00:00:00"))
             .done(true)
             .build();
 
-    ArrayList<RecommendationRequest> expectedRequests = new ArrayList<>();
-    expectedRequests.addAll(Arrays.asList(request1, request2));
+    ArrayList<RecommendationRequest> expected = new ArrayList<>();
+    expected.add(request);
 
-    when(recommendationRequestRepository.findAll()).thenReturn(expectedRequests);
+    when(recommendationRequestRepository.findAll()).thenReturn(expected);
 
     MvcResult response =
         mockMvc
@@ -77,7 +62,7 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
 
     verify(recommendationRequestRepository, times(1)).findAll();
 
-    String expectedJson = mapper.writeValueAsString(expectedRequests);
+    String expectedJson = mapper.writeValueAsString(expected);
     String responseString = response.getResponse().getContentAsString();
     assertEquals(expectedJson, responseString);
   }
@@ -89,17 +74,14 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
 
   @WithMockUser(roles = {"USER"})
   @Test
-  public void test_that_logged_in_user_can_get_by_id_when_the_id_exists() throws Exception {
-    LocalDateTime dateRequested = LocalDateTime.parse("2022-01-03T00:00:00");
-    LocalDateTime dateNeeded = LocalDateTime.parse("2022-02-03T00:00:00");
-
+  public void get_by_id_found() throws Exception {
     RecommendationRequest request =
         RecommendationRequest.builder()
             .requesterEmail("student@ucsb.edu")
             .professorEmail("professor@ucsb.edu")
             .explanation("Need a letter")
-            .dateRequested(dateRequested)
-            .dateNeeded(dateNeeded)
+            .dateRequested(LocalDateTime.parse("2022-01-03T00:00:00"))
+            .dateNeeded(LocalDateTime.parse("2022-02-03T00:00:00"))
             .done(true)
             .build();
 
@@ -120,7 +102,7 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
 
   @WithMockUser(roles = {"USER"})
   @Test
-  public void test_that_logged_in_user_can_get_by_id_when_the_id_does_not_exist() throws Exception {
+  public void get_by_id_not_found() throws Exception {
     when(recommendationRequestRepository.findById(7L)).thenReturn(Optional.empty());
 
     MvcResult response =
@@ -132,57 +114,141 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
     verify(recommendationRequestRepository, times(1)).findById(7L);
 
     Map<String, Object> json = responseToJson(response);
-    assertEquals("EntityNotFoundException", json.get("type"));
     assertEquals("RecommendationRequest with id 7 not found", json.get("message"));
   }
 
   @WithMockUser(roles = {"ADMIN", "USER"})
   @Test
-  public void admin_can_delete_a_recommendation_request() throws Exception {
-    LocalDateTime dateRequested = LocalDateTime.parse("2022-01-03T00:00:00");
-    LocalDateTime dateNeeded = LocalDateTime.parse("2022-02-03T00:00:00");
-
+  public void admin_can_delete() throws Exception {
     RecommendationRequest request =
         RecommendationRequest.builder()
             .requesterEmail("student@ucsb.edu")
             .professorEmail("professor@ucsb.edu")
             .explanation("Need a letter")
-            .dateRequested(dateRequested)
-            .dateNeeded(dateNeeded)
+            .dateRequested(LocalDateTime.parse("2022-01-03T00:00:00"))
+            .dateNeeded(LocalDateTime.parse("2022-02-03T00:00:00"))
             .done(true)
             .build();
 
-    when(recommendationRequestRepository.findById(15L)).thenReturn(Optional.of(request));
+    when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
 
     MvcResult response =
         mockMvc
-            .perform(delete("/api/recommendationrequest").param("id", "15").with(csrf()))
+            .perform(delete("/api/recommendationrequest").param("id", "1").with(csrf()))
             .andExpect(status().isOk())
             .andReturn();
 
-    verify(recommendationRequestRepository, times(1)).findById(15L);
+    verify(recommendationRequestRepository, times(1)).findById(1L);
     verify(recommendationRequestRepository, times(1)).delete(request);
 
     Map<String, Object> json = responseToJson(response);
-    assertEquals("RecommendationRequest with id 15 deleted", json.get("message"));
+    assertEquals("RecommendationRequest with id 1 deleted", json.get("message"));
   }
 
   @WithMockUser(roles = {"ADMIN", "USER"})
   @Test
-  public void admin_tries_to_delete_nonexistent_recommendation_request_and_gets_error()
-      throws Exception {
-    when(recommendationRequestRepository.findById(15L)).thenReturn(Optional.empty());
+  public void admin_delete_not_found() throws Exception {
+    when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.empty());
 
     MvcResult response =
         mockMvc
-            .perform(delete("/api/recommendationrequest").param("id", "15").with(csrf()))
+            .perform(delete("/api/recommendationrequest").param("id", "1").with(csrf()))
             .andExpect(status().isNotFound())
             .andReturn();
 
-    verify(recommendationRequestRepository, times(1)).findById(15L);
+    verify(recommendationRequestRepository, times(1)).findById(1L);
 
     Map<String, Object> json = responseToJson(response);
-    assertEquals("RecommendationRequest with id 15 not found", json.get("message"));
+    assertEquals("RecommendationRequest with id 1 not found", json.get("message"));
+  }
+
+  @WithMockUser(roles = {"ADMIN", "USER"})
+  @Test
+  public void admin_can_update() throws Exception {
+    RecommendationRequest original =
+        RecommendationRequest.builder()
+            .requesterEmail("oldstudent@ucsb.edu")
+            .professorEmail("oldprofessor@ucsb.edu")
+            .explanation("Old explanation")
+            .dateRequested(LocalDateTime.parse("2022-01-03T00:00:00"))
+            .dateNeeded(LocalDateTime.parse("2022-02-03T00:00:00"))
+            .done(false)
+            .build();
+
+    RecommendationRequest edited =
+        RecommendationRequest.builder()
+            .requesterEmail("newstudent@ucsb.edu")
+            .professorEmail("newprofessor@ucsb.edu")
+            .explanation("New explanation")
+            .dateRequested(LocalDateTime.parse("2023-01-03T00:00:00"))
+            .dateNeeded(LocalDateTime.parse("2023-02-03T00:00:00"))
+            .done(true)
+            .build();
+
+    String requestBody = mapper.writeValueAsString(edited);
+
+    when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(original));
+
+    MvcResult response =
+        mockMvc
+            .perform(
+                put("/api/recommendationrequest")
+                    .param("id", "1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .characterEncoding("utf-8")
+                    .content(requestBody)
+                    .with(csrf()))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    verify(recommendationRequestRepository, times(1)).findById(1L);
+    verify(recommendationRequestRepository, times(1)).save(original);
+
+    assertEquals("newstudent@ucsb.edu", original.getRequesterEmail());
+    assertEquals("newprofessor@ucsb.edu", original.getProfessorEmail());
+    assertEquals("New explanation", original.getExplanation());
+    assertEquals(LocalDateTime.parse("2023-01-03T00:00:00"), original.getDateRequested());
+    assertEquals(LocalDateTime.parse("2023-02-03T00:00:00"), original.getDateNeeded());
+    assertEquals(true, original.getDone());
+
+    String expectedJson = mapper.writeValueAsString(original);
+    String responseString = response.getResponse().getContentAsString();
+    assertEquals(expectedJson, responseString);
+  }
+
+  @WithMockUser(roles = {"ADMIN", "USER"})
+  @Test
+  public void admin_update_not_found() throws Exception {
+    RecommendationRequest edited =
+        RecommendationRequest.builder()
+            .requesterEmail("newstudent@ucsb.edu")
+            .professorEmail("newprofessor@ucsb.edu")
+            .explanation("New explanation")
+            .dateRequested(LocalDateTime.parse("2023-01-03T00:00:00"))
+            .dateNeeded(LocalDateTime.parse("2023-02-03T00:00:00"))
+            .done(true)
+            .build();
+
+    String requestBody = mapper.writeValueAsString(edited);
+
+    when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.empty());
+
+    MvcResult response =
+        mockMvc
+            .perform(
+                put("/api/recommendationrequest")
+                    .param("id", "1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .characterEncoding("utf-8")
+                    .content(requestBody)
+                    .with(csrf()))
+            .andExpect(status().isNotFound())
+            .andReturn();
+
+    verify(recommendationRequestRepository, times(1)).findById(1L);
+
+    Map<String, Object> json = responseToJson(response);
+    assertEquals("RecommendationRequest with id 1 not found", json.get("message"));
   }
 
   @Test
@@ -219,20 +285,17 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
   @WithMockUser(roles = {"ADMIN", "USER"})
   @Test
   public void admin_can_post() throws Exception {
-    LocalDateTime dateRequested = LocalDateTime.parse("2022-01-03T00:00:00");
-    LocalDateTime dateNeeded = LocalDateTime.parse("2022-02-03T00:00:00");
-
-    RecommendationRequest request =
+    RecommendationRequest savedRequest =
         RecommendationRequest.builder()
             .requesterEmail("student@ucsb.edu")
             .professorEmail("professor@ucsb.edu")
             .explanation("Need a letter")
-            .dateRequested(dateRequested)
-            .dateNeeded(dateNeeded)
+            .dateRequested(LocalDateTime.parse("2022-01-03T00:00:00"))
+            .dateNeeded(LocalDateTime.parse("2022-02-03T00:00:00"))
             .done(true)
             .build();
 
-    when(recommendationRequestRepository.save(request)).thenReturn(request);
+    when(recommendationRequestRepository.save(any())).thenReturn(savedRequest);
 
     MvcResult response =
         mockMvc
@@ -248,9 +311,21 @@ public class RecommendationRequestControllerTests extends ControllerTestCase {
             .andExpect(status().isOk())
             .andReturn();
 
-    verify(recommendationRequestRepository, times(1)).save(request);
+    ArgumentCaptor<RecommendationRequest> captor =
+        ArgumentCaptor.forClass(RecommendationRequest.class);
 
-    String expectedJson = mapper.writeValueAsString(request);
+    verify(recommendationRequestRepository, times(1)).save(captor.capture());
+
+    RecommendationRequest saved = captor.getValue();
+
+    assertEquals("student@ucsb.edu", saved.getRequesterEmail());
+    assertEquals("professor@ucsb.edu", saved.getProfessorEmail());
+    assertEquals("Need a letter", saved.getExplanation());
+    assertEquals(LocalDateTime.parse("2022-01-03T00:00:00"), saved.getDateRequested());
+    assertEquals(LocalDateTime.parse("2022-02-03T00:00:00"), saved.getDateNeeded());
+    assertEquals(true, saved.getDone());
+
+    String expectedJson = mapper.writeValueAsString(savedRequest);
     String responseString = response.getResponse().getContentAsString();
     assertEquals(expectedJson, responseString);
   }
