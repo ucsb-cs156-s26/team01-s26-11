@@ -41,6 +41,19 @@ import org.springframework.web.bind.annotation.*;
 <span class="fc" id="L41">    return request;</span>
   }
 
+  @Operation(summary = &quot;Delete a RecommendationRequest&quot;)
+  @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+  @DeleteMapping(&quot;&quot;)
+  public Object deleteRecommendationRequest(@Parameter(name = &quot;id&quot;) @RequestParam Long id) {
+<span class="fc" id="L48">    RecommendationRequest request =</span>
+        recommendationRequestRepository
+<span class="fc" id="L50">            .findById(id)</span>
+<span class="fc" id="L51">            .orElseThrow(() -&gt; new EntityNotFoundException(RecommendationRequest.class, id));</span>
+
+<span class="fc" id="L53">    recommendationRequestRepository.delete(request);</span>
+<span class="fc" id="L54">    return genericMessage(&quot;RecommendationRequest with id %s deleted&quot;.formatted(id));</span>
+  }
+
   @Operation(summary = &quot;Create a new recommendation request&quot;)
   @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
   @PostMapping(&quot;/post&quot;)
@@ -55,15 +68,15 @@ import org.springframework.web.bind.annotation.*;
       @RequestParam boolean done)
       throws JsonProcessingException {
 
-<span class="fc" id="L58">    RecommendationRequest r = new RecommendationRequest();</span>
-<span class="fc" id="L59">    r.setRequesterEmail(requesterEmail);</span>
-<span class="fc" id="L60">    r.setProfessorEmail(professorEmail);</span>
-<span class="fc" id="L61">    r.setExplanation(explanation);</span>
-<span class="fc" id="L62">    r.setDateRequested(dateRequested);</span>
-<span class="fc" id="L63">    r.setDateNeeded(dateNeeded);</span>
-<span class="fc" id="L64">    r.setDone(done);</span>
+<span class="fc" id="L71">    RecommendationRequest r = new RecommendationRequest();</span>
+<span class="fc" id="L72">    r.setRequesterEmail(requesterEmail);</span>
+<span class="fc" id="L73">    r.setProfessorEmail(professorEmail);</span>
+<span class="fc" id="L74">    r.setExplanation(explanation);</span>
+<span class="fc" id="L75">    r.setDateRequested(dateRequested);</span>
+<span class="fc" id="L76">    r.setDateNeeded(dateNeeded);</span>
+<span class="fc" id="L77">    r.setDone(done);</span>
 
-<span class="fc" id="L66">    return recommendationRequestRepository.save(r);</span>
+<span class="fc" id="L79">    return recommendationRequestRepository.save(r);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
