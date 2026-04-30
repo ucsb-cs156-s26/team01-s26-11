@@ -58,9 +58,10 @@
                     }
                   },
                   {
-                    "column": {
+                    "column":{
                       "name": "EXPLANATION",
-                      "type": "VARCHAR(255)"
+                      "type": "VARCHAR(255)" 
+                      
                     }
                   },
                   {
