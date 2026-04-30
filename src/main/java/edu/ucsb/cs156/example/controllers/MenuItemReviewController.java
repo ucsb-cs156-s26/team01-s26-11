@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** This is a REST controller for MenuItemReviews */
 @Tag(name = "MenuItemReviews")
-@RequestMapping("/api/menuitemsreview")
+@RequestMapping("/api/menuitemreviews")
 @RestController
 @Slf4j
 public class MenuItemReviewController extends ApiController {
