@@ -81,7 +81,7 @@ public class MenuItemReviewController extends ApiController {
           @RequestParam("dateReviewed")
           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           LocalDateTime dateReviewed,
-      @Parameter(name = "comments") @RequestParam String comments)
+      @Parameter(name = "comments") @RequestParam(required = false) String comments)
       throws JsonProcessingException {
 
     // For an explanation of @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
