@@ -77,11 +77,11 @@ public class MenuItemReviewController extends ApiController {
       @Parameter(
               name = "dateReviewed",
               description =
-                  "date (in iso format, e.g. YYYY-mm-dd; see https://en.wikipedia.org/wiki/ISO_8601)")
+                  "date (in iso format, e.g. YYYY-mm-ddTHH:MM:SS; see https://en.wikipedia.org/wiki/ISO_8601)")
           @RequestParam("dateReviewed")
           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           LocalDateTime dateReviewed,
-      @Parameter(name = "comments") @RequestParam(required = false) String comments)
+      @Parameter(name = "comments") @RequestParam String comments)
       throws JsonProcessingException {
 
     // For an explanation of @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -93,8 +93,8 @@ public class MenuItemReviewController extends ApiController {
     menuItemReview.setItemId(itemId);
     menuItemReview.setReviewerEmail(reviewerEmail);
     menuItemReview.setStars(stars);
-    menuItemReview.setComments(comments);
     menuItemReview.setDateReviewed(dateReviewed);
+    menuItemReview.setComments(comments);
 
     MenuItemReview savedMenuItemReview = menuItemReviewRepository.save(menuItemReview);
 
