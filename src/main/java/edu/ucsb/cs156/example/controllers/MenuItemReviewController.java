@@ -2,6 +2,7 @@ package edu.ucsb.cs156.example.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.ucsb.cs156.example.entities.MenuItemReview;
+import edu.ucsb.cs156.example.errors.EntityNotFoundException;
 import edu.ucsb.cs156.example.repositories.MenuItemReviewRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,8 +40,27 @@ public class MenuItemReviewController extends ApiController {
   }
 
   /**
-   * Create a new date
+   * Get a single review by id
    *
+   * @param id the id of the review
+   * @return a menuitemreview
+   */
+  @Operation(summary = "Get a single review")
+  @PreAuthorize("hasRole('ROLE_USER')")
+  @GetMapping("")
+  public MenuItemReview getById(@Parameter(name = "id") @RequestParam Long id) {
+    MenuItemReview menuItemReview =
+        menuItemReviewRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(MenuItemReview.class, id));
+
+    return menuItemReview;
+  }
+
+  /**
+   * Create a new menu item review
+   *
+   * @param itemId the id of the menu item
    * @param reviewerEmail the email of the reviewer
    * @param stars the number of stars (1-5)
    * @param dateReviewed the date
@@ -51,13 +71,13 @@ public class MenuItemReviewController extends ApiController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PostMapping("/post")
   public MenuItemReview postMenuItemReview(
-      @Parameter(name = "id") @RequestParam Long id,
+      @Parameter(name = "itemId") @RequestParam long itemId,
       @Parameter(name = "reviewerEmail") @RequestParam String reviewerEmail,
       @Parameter(name = "stars") @RequestParam int stars,
       @Parameter(
               name = "dateReviewed",
               description =
-                  "date (in iso format, e.g. YYYY-mm-ddTHH:MM:SS; see https://en.wikipedia.org/wiki/ISO_8601)")
+                  "date (in iso format, e.g. YYYY-mm-dd; see https://en.wikipedia.org/wiki/ISO_8601)")
           @RequestParam("dateReviewed")
           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           LocalDateTime dateReviewed,
@@ -70,7 +90,7 @@ public class MenuItemReviewController extends ApiController {
     log.info("dateReviewed={}", dateReviewed);
 
     MenuItemReview menuItemReview = new MenuItemReview();
-    menuItemReview.setId(id);
+    menuItemReview.setItemId(itemId);
     menuItemReview.setReviewerEmail(reviewerEmail);
     menuItemReview.setStars(stars);
     menuItemReview.setComments(comments);
