@@ -41,12 +41,6 @@
                   },
                   {
                     "column": {
-                      "name": "DATE_REVIEWED",
-                      "type": "TIMESTAMP"
-                    }
-                  },
-                  {
-                    "column": {
                       "name": "REVIEWER_EMAIL",
                       "type": "VARCHAR(255)"
                     }
@@ -55,6 +49,12 @@
                     "column": {
                       "name": "STARS",
                       "type": "INT"
+                    }
+                  },
+                  {
+                    "column": {
+                      "name": "DATE_REVIEWED",
+                      "type": "TIMESTAMP"
                     }
                   },
                   {
