@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -131,5 +132,24 @@ public class MenuItemReviewController extends ApiController {
     menuItemReviewRepository.save(menuItemReview);
 
     return menuItemReview;
+  }
+
+  /**
+   * Delete a menuitemreview
+   *
+   * @param id the id of the date to delete
+   * @return a message indicating the date was deleted
+   */
+  @Operation(summary = "Delete a menuitemreview")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @DeleteMapping("")
+  public Object deleteMenuItemReview(@Parameter(name = "id") @RequestParam Long id) {
+    MenuItemReview menuItemReview =
+        menuItemReviewRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(MenuItemReview.class, id));
+
+    menuItemReviewRepository.delete(menuItemReview);
+    return genericMessage("MenuItemReview with id %s deleted".formatted(id));
   }
 }

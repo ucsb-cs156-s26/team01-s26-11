@@ -241,7 +241,7 @@ public class MenuItemReviewControllerTests extends ControllerTestCase {
     MenuItemReview menuItemReview2 =
         MenuItemReview.builder()
             .itemId(24)
-            .reviewerEmail("random@gmail.com")
+            .reviewerEmail("fake@gmail.com")
             .stars(4)
             .dateReviewed(ldt2)
             .comments("stuff")
