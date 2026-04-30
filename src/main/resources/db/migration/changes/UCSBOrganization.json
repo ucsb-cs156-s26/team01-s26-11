@@ -48,7 +48,7 @@
                       "constraints": {
                         "nullable": false
                       },
-                      "name": "ACTIVE",
+                      "name": "INACTIVE",
                       "type": "BOOLEAN"
                     }
                   }]
