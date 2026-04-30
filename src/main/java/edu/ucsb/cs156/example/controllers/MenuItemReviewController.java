@@ -150,6 +150,6 @@ public class MenuItemReviewController extends ApiController {
             .orElseThrow(() -> new EntityNotFoundException(MenuItemReview.class, id));
 
     menuItemReviewRepository.delete(menuItemReview);
-    return genericMessage("Menu_ItemReview with id %s deleted".formatted(id));
+    return genericMessage("MenuItemReview with id %s deleted".formatted(id));
   }
 }
