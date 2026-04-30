@@ -137,8 +137,8 @@ public class MenuItemReviewController extends ApiController {
   /**
    * Delete a menuitemreview
    *
-   * @param id the id of the date to delete
-   * @return a message indicating the date was deleted
+   * @param id the id of the menuitemreview to delete
+   * @return a message indicating the menuitemreview was deleted
    */
   @Operation(summary = "Delete a menuitemreview")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
