@@ -42,12 +42,12 @@ public class UCSBOrganizationController extends ApiController {
   }
 
   /**
-   * This method returns a single diningcommons.
+   * This method returns a single organization.
    *
-   * @param code code of the diningcommons
-   * @return a single diningcommons
+   * @param orgCode code of the organization
+   * @return a single organization
    */
-  @Operation(summary = "Get a single commons")
+  @Operation(summary = "Get a single organization")
   @PreAuthorize("hasRole('ROLE_USER')")
   @GetMapping("")
   public UCSBOrganization getById(@Parameter(name = "orgCode") @RequestParam String orgCode) {
@@ -66,7 +66,7 @@ public class UCSBOrganizationController extends ApiController {
    * @param orgTranslationShort short translation of the Organization name
    * @param orgTranslation translation of the Organization name
    * @param inactive whhether the organization is inactive
-   * @return the save diningcommons
+   * @return the save organization
    */
   @Operation(summary = "Create a new organization")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
