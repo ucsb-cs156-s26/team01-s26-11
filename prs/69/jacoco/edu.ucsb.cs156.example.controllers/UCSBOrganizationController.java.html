@@ -42,12 +42,12 @@ import org.springframework.web.bind.annotation.RestController;
   }
 
   /**
-   * This method returns a single diningcommons.
+   * This method returns a single organization.
    *
-   * @param code code of the diningcommons
-   * @return a single diningcommons
+   * @param orgCode code of the organization
+   * @return a single organization
    */
-  @Operation(summary = &quot;Get a single commons&quot;)
+  @Operation(summary = &quot;Get a single organization&quot;)
   @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
   @GetMapping(&quot;&quot;)
   public UCSBOrganization getById(@Parameter(name = &quot;orgCode&quot;) @RequestParam String orgCode) {
@@ -66,7 +66,7 @@ import org.springframework.web.bind.annotation.RestController;
    * @param orgTranslationShort short translation of the Organization name
    * @param orgTranslation translation of the Organization name
    * @param inactive whhether the organization is inactive
-   * @return the save diningcommons
+   * @return the save organization
    */
   @Operation(summary = &quot;Create a new organization&quot;)
   @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
