@@ -124,7 +124,7 @@ public class MenuItemReviewControllerTests extends ControllerTestCase {
         mockMvc
             .perform(
                 post("/api/menuitemsreview/post")
-                    .param("id", "5")
+                    .param("itemId", "27")
                     .param("reviewerEmail", "random@gmail.com")
                     .param("stars", "2")
                     .param("dateReviewed", "2022-01-03T00:00:00")
